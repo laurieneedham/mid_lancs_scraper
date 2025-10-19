@@ -185,9 +185,11 @@ def extract_clubs_and_counts(url, config):
             summary_data.append({
                 'club': club,
                 'track_events': track_df['event_normalised'].nunique(),
-                'track_athletes': track_df['athlete'].nunique(),
+                'track_participations': len(track_df),  # Total number of times athletes competed in track
+                'track_athletes': track_df['athlete'].nunique(),  # Unique track athletes
                 'field_events': field_df['event_normalised'].nunique(),
-                'field_athletes': field_df['athlete'].nunique(),
+                'field_participations': len(field_df),  # Total number of times athletes competed in field
+                'field_athletes': field_df['athlete'].nunique(),  # Unique field athletes
                 'total_results': len(club_df)
             })
     
@@ -233,7 +235,7 @@ def print_club_statistics(meeting_url, summary_df, meeting_info, config):
     club_width = config.get('output', {}).get('club_column_width', 40)
     count_width = config.get('output', {}).get('count_column_width', 15)
     
-    total_width = club_width + (count_width * 4) + 4
+    total_width = club_width + (count_width * 6) + 6
     
     print(f"\n{'='*total_width}")
     print(f"Meeting: {meeting_url}")
@@ -247,18 +249,21 @@ def print_club_statistics(meeting_url, summary_df, meeting_info, config):
         print("No club data found for this meeting.")
         return
     
-    print(f"\n{'Club Name':<{club_width}} {'Track Events':>{count_width}} {'Track Athletes':>{count_width}} {'Field Events':>{count_width}} {'Field Athletes':>{count_width}}")
-    print(f"{'-'*club_width} {'-'*count_width} {'-'*count_width} {'-'*count_width} {'-'*count_width}")
+    print(f"\n{'Club Name':<{club_width}} {'Trk Evts':>{count_width}} {'Trk Parts':>{count_width}} {'Trk Aths':>{count_width}} {'Fld Evts':>{count_width}} {'Fld Parts':>{count_width}} {'Fld Aths':>{count_width}}")
+    print(f"{'-'*club_width} {'-'*count_width} {'-'*count_width} {'-'*count_width} {'-'*count_width} {'-'*count_width} {'-'*count_width}")
     
     for _, row in summary_df.iterrows():
-        print(f"{row['club']:<{club_width}} {row['track_events']:>{count_width}} {row['track_athletes']:>{count_width}} {row['field_events']:>{count_width}} {row['field_athletes']:>{count_width}}")
+        print(f"{row['club']:<{club_width}} {row['track_events']:>{count_width}} {row['track_participations']:>{count_width}} {row['track_athletes']:>{count_width}} {row['field_events']:>{count_width}} {row['field_participations']:>{count_width}} {row['field_athletes']:>{count_width}}")
     
     # Print summary
     total_track_events = summary_df['track_events'].sum()
+    total_track_participations = summary_df['track_participations'].sum()
     total_track_athletes = summary_df['track_athletes'].sum()
     total_field_events = summary_df['field_events'].sum()
+    total_field_participations = summary_df['field_participations'].sum()
     total_field_athletes = summary_df['field_athletes'].sum()
-    print(f"\n{'TOTAL':<{club_width}} {total_track_events:>{count_width}} {total_track_athletes:>{count_width}} {total_field_events:>{count_width}} {total_field_athletes:>{count_width}}")
+    print(f"\n{'TOTAL':<{club_width}} {total_track_events:>{count_width}} {total_track_participations:>{count_width}} {total_track_athletes:>{count_width}} {total_field_events:>{count_width}} {total_field_participations:>{count_width}} {total_field_athletes:>{count_width}}")
+
 
 
 def main():
