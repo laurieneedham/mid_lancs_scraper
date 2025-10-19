@@ -32,3 +32,7 @@ count_column_width = 15
 # How to sort the club statistics table
 # Options: "alphabetical" (sort by club name A-Z) or "numerical" (sort by participation, highest first)
 sort_by = "alphabetical"
+
+# Excel output file path (relative to project directory or absolute path)
+# Set to empty string "" to disable Excel output
+excel_output_path = "mid_lancs_results.xlsx"

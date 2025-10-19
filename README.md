@@ -69,6 +69,9 @@ The `config.toml` file supports the following options:
 - `sort_by`: How to sort club statistics tables (default: "alphabetical")
   - `"alphabetical"`: Sort clubs by name (A-Z)
   - `"numerical"`: Sort clubs by participation (highest track athletes first)
+- `excel_output_path`: Path to save Excel file with results (optional)
+  - Set a filename to enable Excel export (e.g., `"mid_lancs_results.xlsx"`)
+  - Set to `""` (empty string) to disable Excel export
 
 **Example:**
 ```toml
@@ -76,7 +79,10 @@ The `config.toml` file supports the following options:
 club_column_width = 40
 count_column_width = 15
 sort_by = "alphabetical"  # or "numerical"
+excel_output_path = "mid_lancs_results.xlsx"
 ```
+
+**📖 For Excel export details, see [EXCEL_EXPORT.md](EXCEL_EXPORT.md)**
 
 ## Stats Explained
 

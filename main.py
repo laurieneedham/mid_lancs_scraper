@@ -265,6 +265,62 @@ def print_club_statistics(meeting_url, summary_df, meeting_info, config):
     print(f"\n{'TOTAL':<{club_width}} {total_track_events:>{count_width}} {total_track_participations:>{count_width}} {total_track_athletes:>{count_width}} {total_field_events:>{count_width}} {total_field_participations:>{count_width}} {total_field_athletes:>{count_width}}")
 
 
+def export_to_excel(all_competitions, excel_path, config):
+    """
+    Export all meeting results to an Excel file with each meeting on a separate tab.
+    
+    Args:
+        all_competitions: Dictionary of competition data with DataFrames
+        excel_path: Path to the Excel file to create
+        config: Configuration dictionary
+    """
+    with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
+        for meeting_key, meeting_data in all_competitions.items():
+            summary_df = meeting_data['summary_df'].copy()
+            meeting_info = meeting_data['meeting_info']
+            
+            # Rename columns for better Excel display
+            summary_df = summary_df.rename(columns={
+                'club': 'Club Name',
+                'track_events': 'Track Events',
+                'track_participations': 'Track Participations',
+                'track_athletes': 'Track Athletes',
+                'field_events': 'Field Events',
+                'field_participations': 'Field Participations',
+                'field_athletes': 'Field Athletes',
+                'total_results': 'Total Results'
+            })
+            
+            # Create a valid sheet name (max 31 chars, no special chars)
+            sheet_name = meeting_key.replace('meeting_', 'Meeting ')
+            if len(sheet_name) > 31:
+                sheet_name = sheet_name[:31]
+            
+            # Write the DataFrame to a sheet
+            summary_df.to_excel(writer, sheet_name=sheet_name, index=False, startrow=3)
+            
+            # Get the worksheet to add meeting info
+            worksheet = writer.sheets[sheet_name]
+            
+            # Add meeting info at the top
+            if meeting_info:
+                info_lines = meeting_info.split('\n')
+                for i, line in enumerate(info_lines):
+                    worksheet.cell(row=i+1, column=1, value=line)
+            
+            # Auto-adjust column widths
+            for column in worksheet.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                worksheet.column_dimensions[column_letter].width = adjusted_width
+
 
 def main():
 
@@ -322,6 +378,16 @@ def main():
     print(f"\n{'='*total_width}")
     print("Scraping complete!")
     print(f"{'='*total_width}")
+    
+    # Export to Excel if configured
+    excel_path = config.get('output', {}).get('excel_output_path', '')
+    if excel_path and all_competitions:
+        try:
+            print(f"\nExporting results to Excel: {excel_path}")
+            export_to_excel(all_competitions, excel_path, config)
+            print(f"✓ Successfully exported to {excel_path}")
+        except Exception as e:
+            print(f"✗ Error exporting to Excel: {e}")
     
     # Return the DataFrames for further analysis
     return all_competitions
